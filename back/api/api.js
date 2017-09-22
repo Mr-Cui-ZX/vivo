@@ -1,0 +1,258 @@
+var express=require('express');
+var router=express.Router();
+//注册
+router.post('/register?id=1',function(req,res){
+	dbhandler.user.findOne({
+		tel:req.body.user
+	},function(error,data){
+		if(data){
+			res.send(false)
+		}
+		else{
+			dbhandler.user.create({
+				tel:req.body.user,
+				password:req.body.password
+			},function(error,result){
+				if(!error){
+					res.send(true);
+				}
+				else{
+					console.log(error);
+				}
+			})
+		}
+	})
+})
+
+//登录
+router.post('/login',function(req,res){
+	dbhandler.user.findOne({
+		tel:req.body.user,
+		password:req.body.password
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+//主页
+
+router.post('/home',function(req,res){
+	dbhandler.home.create({
+		swipe:req.body.swipe,
+		main:req.body.main
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}
+		else{
+			res.send(false)
+		}
+	})
+})
+
+router.get('/home',function(req,res){
+	dbhandler.home.find({},function(error,data){
+		if(data){
+			res.send(data);
+		}else{
+			res.send(false);
+		}
+	})
+})
+
+//xplay
+
+router.post('/xplay',function(req,res){
+	dbhandler.xplay.create({
+		list:req.body.list,
+		product:req.body.product
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}
+		else{
+			res.send(false)
+		}
+	})
+})
+
+router.get('/xplay',function(req,res){
+	dbhandler.xplay.find({},function(error,data){
+		if(data){
+			res.send(data);
+		}else{
+			res.send(false);
+		}
+	})
+})
+
+//商城
+
+router.post("/shop",function(req,res){
+	dbhandler.shop.create({
+		swipe:req.body.swipe,
+		nav:req.body.nav,
+		floor:req.body.floor
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}
+		else{
+			res.send(false)
+		}
+	})
+})
+
+
+router.get("/shop",function(req,res){
+	dbhandler.shop.find({},function(error,data){
+		if(data){
+			res.send(data);
+		}else{
+			res.send(false);
+		}
+	})
+})
+
+//列表
+router.post("/contain",function(req,res){
+	dbhandler.contain.create({
+		data:req.body.data
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+router.get("/contain",function(req,res){
+	dbhandler.contain.find({},function(error,data){
+		if(data){
+			res.send(data)
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+//详情
+router.post("/detail",function(req,res){
+	dbhandler.detail.create({
+		data:req.body.data
+	},function(error,data){
+		if(data){
+			res.send(true)
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+
+router.get("/detail",function(req,res){
+	dbhandler.detail.find({},function(error,data){
+		if(data){
+			res.send(data)
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+//购物车
+//
+router.post("/cart",function(req,res){
+	dbhandler.user.find({
+		tel:req.body.tel
+	},function(error,data){
+		if(data){
+			dbhandler.cart.findOne({
+				tel:req.body.tel,
+				name:req.body.name
+			},function(error,data){
+				if(data){
+					console.log(req.body.tel,req.body.name);
+					dbhandler.cart.update({tel:req.body.tel,name:req.body.name},{$inc:{number:1}},(error,data)=>{
+						if(!error){
+							res.send(true);
+						}
+					})
+				}else{
+					dbhandler.cart.create({
+						id:req.body.id,
+						name:req.body.name,
+						currentprice:req.body.currentprice,
+						price:req.body.price,
+						number:req.body.number,
+						url:req.body.url,
+						tel:req.body.tel
+					},function(error,data){
+						if(!error){
+							res.send(true)
+						}else{
+							res.send(false)
+						}
+					})
+				}
+			})
+		}
+	})
+})
+
+router.post("/number",function(req,res){
+	dbhandler.cart.findOne({
+		id:req.body.id,
+		tel:req.body.tel
+	},function(error,data){
+		if(data){
+			dbhandler.cart.update({
+				id:req.body.id,
+				tel:req.body.tel
+			},{$set:{number:req.body.number}},(error,data)=>{
+				if(!error){
+					res.send(true)
+				}
+			})
+		}else{
+			res.send(false)
+		}
+	})
+})
+
+
+router.post("/delete",function(req,res){
+	dbhandler.cart.find({
+		id:req.body.id,
+		tel:req.body.tel
+	},function(error,data){
+			dbhandler.cart.remove({
+				id:req.body.id,
+				tel:req.body.tel
+			},function(error,data){
+				if(!error){
+					res.send(true);
+				}else{
+					res.send(false);
+				}
+			})
+	})
+})
+
+router.get("/cart",function(req,res){
+	dbhandler.cart.find({
+		tel:req.query.tel
+	},function(error,data){
+		if(data){
+			res.send(data)
+		}else{
+			res.send(false)
+		}
+	})
+})
+module.exports=router;
